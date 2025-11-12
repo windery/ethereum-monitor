@@ -47,6 +47,14 @@ web_modules/
 # TypeScript cache
 *.tsbuildinfo
 
+# TypeScript compiled output
+dist/
+build/
+
+# TypeScript declaration files (if not needed in source control)
+*.d.ts
+*.d.ts.map
+
 # Optional npm cache directory
 .npm
 
