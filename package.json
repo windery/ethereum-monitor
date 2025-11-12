@@ -10,11 +10,19 @@
     "dev": "tsc --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["ethereum", "monitor", "blockchain"],
+  "keywords": [
+    "ethereum",
+    "monitor",
+    "blockchain"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.13.2",
+    "ethers": "^6.15.0"
   }
 }
