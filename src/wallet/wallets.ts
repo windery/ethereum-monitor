@@ -85,7 +85,7 @@ export function saveWallets(wallets: ethers.HDNodeWallet[], walletsDir: string =
  * // 从自定义目录加载所有钱包
  * const wallets = loadWallets("./my-wallets");
  */
-export function loadWallets(walletsDir: string = "./wallets"): ethers.BaseWallet[] {
+export function loadWallets(walletsDir: string = "./wallets"): ethers.HDNodeWallet[] {
   const wallets: ethers.HDNodeWallet[] = [];
 
   if (!fs.existsSync(walletsDir)) {
