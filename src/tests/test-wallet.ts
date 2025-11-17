@@ -11,7 +11,7 @@ export function testLoadWallets() {
   console.log(JSON.stringify(loadedWallets, null, 2));
 }
 
-export function testGetWalletBalance() {
+export async function testGetWalletBalance() {
   const providerUrl = process.env.PROVIDER_URL;
   const testWalletAddress = process.env.TEST_WALLET_ADDRESS;
   const provider = new ethers.JsonRpcProvider(providerUrl);
@@ -20,6 +20,6 @@ export function testGetWalletBalance() {
   const testWallet = loadedWallets.filter(
     (wallet) => wallet.address === testWalletAddress
   )?.[0];
-  const walletBalance = getWalletBalance(testWallet, provider);
-  console.log(walletBalance);
+  const walletBalance = await getWalletBalance(testWallet, provider);
+  console.log(`余额: ${ethers.formatEther(walletBalance)} ETH`);
 }

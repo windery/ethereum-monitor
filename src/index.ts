@@ -1,8 +1,15 @@
 import dotenv from "dotenv";
 import { testCreateWallets, testLoadWallets, testGetWalletBalance } from "./tests/test-wallet.ts";
+import { testProvider } from "./tests/test-provider.ts";
+import { testTransfer } from "./tests/test-transfer.ts";
 
 const env = process.env.NODE_ENV || 'development';
 dotenv.config({ path: `.env.${env}` });
 
 // testCreateWallets();
-testLoadWallets();
+// testLoadWallets();
+// await testGetWalletBalance();
+
+// await testProvider();
+
+await testTransfer();

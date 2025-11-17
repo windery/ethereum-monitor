@@ -72,40 +72,87 @@ export function saveWallets(wallets: ethers.HDNodeWallet[], walletsDir: string =
 }
 
 /**
- * 从文件系统加载钱包数据
- * 读取指定目录下的钱包JSON文件并恢复为HD钱包实例
+ * 从文件系统加载所有钱包数据
+ * 读取指定目录下的所有钱包JSON文件并恢复为钱包实例
  * 
  * @function loadWallets
  * @param {string} [walletsDir="./wallets"] - 钱包文件所在目录，默认为"./wallets"
- * @returns {ethers.HDNodeWallet[]} 恢复的HD钱包数组
+ * @returns {ethers.BaseWallet[]} 恢复的钱包数组
  * 
  * @example
- * // 从默认目录加载钱包
+ * // 从默认目录加载所有钱包
  * const wallets = loadWallets();
- * // 从自定义目录加载钱包
+ * // 从自定义目录加载所有钱包
  * const wallets = loadWallets("./my-wallets");
  */
-export function loadWallets(walletsDir: string = "./wallets"): ethers.HDNodeWallet[] {
+export function loadWallets(walletsDir: string = "./wallets"): ethers.BaseWallet[] {
   const wallets: ethers.HDNodeWallet[] = [];
-  
+
   if (!fs.existsSync(walletsDir)) {
     return wallets;
   }
-  
+
   const walletFiles = fs.readdirSync(walletsDir);
   walletFiles.forEach((walletFile) => {
+    // 只处理.json文件
+    if (!walletFile.endsWith(".json")) {
+      return;
+    }
+
     const walletFilePath = `${walletsDir}/${walletFile}`;
+
+    try {
+      const walletJson = fs.readFileSync(walletFilePath, "utf8");
+      const walletData: WalletData = JSON.parse(walletJson);
+
+      // 如果有助记词，使用助记词恢复HD钱包
+      if (walletData.phrase) {
+        const wallet = ethers.HDNodeWallet.fromPhrase(walletData.phrase);
+        wallets.push(wallet);
+      } 
+    } catch (error) {
+      console.error(`加载钱包文件失败: ${walletFilePath}`, error);
+    }
+  });
+
+  return wallets;
+}
+
+/**
+ * 从文件系统加载单个钱包数据
+ * 根据钱包地址加载指定的钱包文件并恢复为HD钱包实例
+ * 
+ * @function loadWallet
+ * @param {string} walletAddress - 要加载的钱包地址
+ * @param {string} [walletsDir="./wallets"] - 钱包文件所在目录，默认为"./wallets"
+ * @returns {ethers.HDNodeWallet | null} 恢复的HD钱包实例，如果未找到则返回null
+ * 
+ * @example
+ * // 加载指定地址的钱包
+ * const wallet = loadWallet("0x123...");
+ * if (wallet) {
+ *   console.log("找到钱包:", wallet.address);
+ * }
+ */
+export function loadWallet(walletAddress: string, walletsDir: string = "./wallets"): ethers.HDNodeWallet | null {
+  const walletFilePath = `${walletsDir}/${walletAddress}.json`;
+  if (!fs.existsSync(walletFilePath)) {
+    return null;
+  }
+
+  try {
     const walletJson = fs.readFileSync(walletFilePath, "utf8");
     const walletData: WalletData = JSON.parse(walletJson);
-    
+
     // 如果有助记词，使用助记词恢复HD钱包
     if (walletData.phrase) {
-      const wallet = ethers.HDNodeWallet.fromPhrase(walletData.phrase);
-      wallets.push(wallet);
-    } 
-  });
-  
-  return wallets;
+      return ethers.HDNodeWallet.fromPhrase(walletData.phrase);
+    }   
+  } catch (error) {
+    console.error(`加载钱包文件失败: ${walletFilePath}`, error);
+  }
+
+  return null;
 }
 
 /**
@@ -145,6 +192,6 @@ export function getWalletData(wallet: ethers.HDNodeWallet): WalletData {
  * const balance = await getWalletBalance(wallet, provider);
  * console.log(`余额: ${ethers.formatEther(balance)} ETH`);
  */
-export function getWalletBalance(wallet: ethers.HDNodeWallet, provider: ethers.Provider): Promise<bigint> {
-  return provider.getBalance(wallet.address);
+export async function getWalletBalance(wallet: ethers.HDNodeWallet, provider: ethers.Provider): Promise<bigint> {
+  return await provider.getBalance(wallet.address);
 }
